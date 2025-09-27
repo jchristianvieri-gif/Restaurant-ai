@@ -1,183 +1,219 @@
-'use client'
+'use client';
+import { useState } from 'react';
+import { ShoppingCart, Search } from 'lucide-react';
+import MenuList from '@/components/menu/MenuList';
+import CartSidebar from '@/components/cart/CartSidebar';
+import { Product, CartItem } from '@/types';
 
-import { useState, useEffect } from 'react'
-import { ShoppingCart, Star, Clock, Shield } from 'lucide-react'
-import { Button } from '../components/ui/Button'
-import { ProductCard } from '../components/ProductCard'
-import { Cart } from '../components/Cart'
-
-interface Product {
-  id: string
-  name: string
-  description: string
-  price: number
-  image_url: string
-  category: string
-}
-
-interface CartItem {
-  product: Product
-  quantity: number
-}
+const dummyProducts: Product[] = [
+  {
+    id: '1', 
+    name: 'Nasi Goreng Spesial', 
+    description: 'Nasi goreng dengan telur, ayam, dan sayuran segar', 
+    price: 25000, 
+    image_url: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=400&h=300&fit=crop&auto=format',
+    category: 'main-course', 
+    created_at: new Date().toISOString()
+  },
+  {
+    id: '2', 
+    name: 'Ayam Bakar Madu', 
+    description: 'Ayam bakar dengan bumbu madu spesial', 
+    price: 35000, 
+    image_url: 'https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=400&h=300&fit=crop&auto=format',
+    category: 'main-course', 
+    created_at: new Date().toISOString()
+  },
+  {
+    id: '3', 
+    name: 'Gado-Gado', 
+    description: 'Salad sayuran dengan bumbu kacang khas', 
+    price: 20000, 
+    image_url: 'https://images.unsplash.com/photo-1546549032-9571cd6b27df?w=400&h=300&fit=crop&auto=format',
+    category: 'appetizer', 
+    created_at: new Date().toISOString()
+  },
+  {
+    id: '4', 
+    name: 'Es Jeruk Segar', 
+    description: 'Minuman jeruk segar dengan es', 
+    price: 8000, 
+    image_url: 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400&h=300&fit=crop&auto=format',
+    category: 'beverage', 
+    created_at: new Date().toISOString()
+  },
+  {
+    id: '5', 
+    name: 'Sate Ayam', 
+    description: 'Sate ayam dengan bumbu kacang', 
+    price: 30000, 
+    image_url: 'https://images.unsplash.com/photo-1553909489-cd47e0907980?w=400&h=300&fit=crop&auto=format',
+    category: 'main-course', 
+    created_at: new Date().toISOString()
+  },
+  {
+    id: '6', 
+    name: 'Es Teh Manis', 
+    description: 'Teh manis dingin yang menyegarkan', 
+    price: 5000, 
+    image_url: 'https://images.unsplash.com/photo-1597481499750-87cacb57f816?w=400&h=300&fit=crop&auto=format',
+    category: 'beverage', 
+    created_at: new Date().toISOString()
+  },
+  {
+    id: '7', 
+    name: 'Rendang Daging', 
+    description: 'Daging sapi dimasak dengan bumbu rempah khas Padang', 
+    price: 45000, 
+    image_url: 'https://images.unsplash.com/photo-1559311645-0c0d6a4d6d7c?w=400&h=300&fit=crop&auto=format',
+    category: 'main-course', 
+    created_at: new Date().toISOString()
+  },
+  {
+    id: '8', 
+    name: 'Soto Ayam', 
+    description: 'Soto ayam hangat dengan suwiran ayam dan tauge', 
+    price: 22000, 
+    image_url: 'https://images.unsplash.com/photo-1563245372-f20324a0f381?w=400&h=300&fit=crop&auto=format',
+    category: 'main-course', 
+    created_at: new Date().toISOString()
+  },
+  {
+    id: '9', 
+    name: 'Bakso Malang', 
+    description: 'Bakso urat dengan mie dan pangsit goreng', 
+    price: 18000, 
+    image_url: 'https://images.unsplash.com/photo-1582610115987-49b84f104a08?w=400&h=300&fit=crop&auto=format',
+    category: 'main-course', 
+    created_at: new Date().toISOString()
+  }
+];
 
 export default function Home() {
-  const [products, setProducts] = useState<Product[]>([])
-  const [cart, setCart] = useState<CartItem[]>([])
-  const [isCartOpen, setIsCartOpen] = useState(false)
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
 
-  useEffect(() => {
-    fetchProducts()
-  }, [])
+  const categories = ['all'];
+  dummyProducts.forEach(product => {
+    if (!categories.includes(product.category)) {
+      categories.push(product.category);
+    }
+  });
 
-  const fetchProducts = async () => {
-    const sampleProducts: Product[] = [
-      {
-        id: '1',
-        name: 'Nasi Goreng Spesial',
-        description: 'Nasi goreng dengan telur, ayam, dan sayuran segar',
-        price: 25000,
-        image_url: '',
-        category: 'main course'
-      },
-      {
-        id: '2',
-        name: 'Ayam Bakar Madu',
-        description: 'Ayam bakar dengan bumbu madu spesial',
-        price: 35000,
-        image_url: '',
-        category: 'main course'
-      },
-      {
-        id: '3',
-        name: 'Es Teh Manis',
-        description: 'Es teh segar dengan gula aren',
-        price: 8000,
-        image_url: '',
-        category: 'beverage'
-      },
-      {
-        id: '4',
-        name: 'Juice Alpukat',
-        description: 'Juice alpukat segar dengan susu',
-        price: 15000,
-        image_url: '',
-        category: 'beverage'
-      }
-    ]
-    setProducts(sampleProducts)
-  }
+  const filteredProducts = dummyProducts.filter(product => {
+    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         product.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
 
-  const addToCart = (product: Product) => {
-    setCart(prev => {
-      const existing = prev.find(item => item.product.id === product.id)
-      if (existing) {
-        return prev.map(item =>
-          item.product.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        )
-      }
-      return [...prev, { product, quantity: 1 }]
-    })
-  }
+  const updateCartQuantity = (productId: string, quantity: number) => {
+    if (quantity <= 0) {
+      setCartItems(prev => prev.filter(item => item.product.id !== productId));
+    } else {
+      setCartItems(prev => {
+        const existingItem = prev.find(item => item.product.id === productId);
+        if (existingItem) {
+          return prev.map(item =>
+            item.product.id === productId ? { ...item, quantity } : item
+          );
+        }
+        const product = dummyProducts.find(p => p.id === productId);
+        if (product) {
+          return [...prev, { product, quantity }];
+        }
+        return prev;
+      });
+    }
+  };
 
-  const cartItemsCount = cart.reduce((count, item) => count + item.quantity, 0)
+  const removeFromCart = (productId: string) => {
+    setCartItems(prev => prev.filter(item => item.product.id !== productId));
+  };
+
+  const getTotalCartItems = () => {
+    return cartItems.reduce((total, item) => total + item.quantity, 0);
+  };
+
+  const handleCheckout = () => {
+    if (cartItems.length === 0) return;
+    alert('Checkout functionality will be implemented with payment gateway!');
+    setIsCartOpen(false);
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-100">
-      <header className="bg-white/80 backdrop-blur-md shadow-lg sticky top-0 z-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
+      <header className="bg-white shadow-sm sticky top-0 z-40">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex justify-between items-center">
+          <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                <span className="text-white font-bold text-xl">🍔</span>
-              </div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                RestoAI
-              </h1>
+              <span className="text-3xl">🍽️</span>
+              <h1 className="text-2xl font-bold text-gray-800">Restaurant AI</h1>
             </div>
             
-            <Button 
-              onClick={() => setIsCartOpen(true)}
-              className="relative"
-            >
-              <ShoppingCart className="w-5 h-5 mr-2" />
-              Cart
-              {cartItemsCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">
-                  {cartItemsCount}
-                </span>
-              )}
-            </Button>
+            <div className="flex items-center space-x-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                <input
+                  type="text"
+                  placeholder="Search menu..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              <button
+                onClick={() => setIsCartOpen(true)}
+                className="relative p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors"
+              >
+                <ShoppingCart size={24} />
+                {getTotalCartItems() > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs w-5 h-5 flex items-center justify-center">
+                    {getTotalCartItems()}
+                  </span>
+                )}
+              </button>
+            </div>
+          </div>
+
+          <div className="flex space-x-2 mt-4 overflow-x-auto">
+            {categories.map(category => (
+              <button
+                key={category}
+                onClick={() => setSelectedCategory(category)}
+                className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
+                  selectedCategory === category
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                {category.charAt(0).toUpperCase() + category.slice(1)}
+              </button>
+            ))}
           </div>
         </div>
       </header>
 
-      <section className="relative bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 text-white py-20">
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="container mx-auto px-4 relative z-10 text-center">
-          <h1 className="text-5xl font-bold mb-4">Selamat Datang di RestoAI</h1>
-          <p className="text-xl mb-8">Restoran modern dengan teknologi AI</p>
-          <div className="flex justify-center space-x-4">
-            <Button variant="secondary" size="lg">Lihat Menu</Button>
-            <Button variant="outline" size="lg" className="border-white text-white">
-              Pesan Sekarang
-            </Button>
-          </div>
+      <main className="container mx-auto px-4 py-8">
+        <div className="mb-8 text-center">
+          <h2 className="text-4xl font-bold text-gray-800 mb-2">Our Delicious Menu</h2>
+          <p className="text-lg text-gray-600">Fresh ingredients, authentic flavors</p>
         </div>
-      </section>
 
-      <section className="py-12 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center p-6 rounded-lg bg-gradient-to-br from-blue-50 to-purple-50 shadow-lg">
-              <Clock className="w-12 h-12 text-blue-600 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Cepat & Mudah</h3>
-              <p className="text-gray-600">Pesan dalam beberapa klik</p>
-            </div>
-            <div className="text-center p-6 rounded-lg bg-gradient-to-br from-green-50 to-teal-50 shadow-lg">
-              <Star className="w-12 h-12 text-green-600 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Kualitas Terbaik</h3>
-              <p className="text-gray-600">Bahan-bahan segar</p>
-            </div>
-            <div className="text-center p-6 rounded-lg bg-gradient-to-br from-purple-50 to-pink-50 shadow-lg">
-              <Shield className="w-12 h-12 text-purple-600 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Pembayaran Aman</h3>
-              <p className="text-gray-600">Sistem terjamin</p>
-            </div>
-          </div>
-        </div>
-      </section>
+        <MenuList products={filteredProducts} />
+      </main>
 
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center mb-12 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            Menu Kami
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {products.map(product => (
-              <ProductCard 
-                key={product.id} 
-                product={product} 
-                onAddToCart={() => addToCart(product)}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <footer className="bg-gray-800 text-white py-8">
-        <div className="container mx-auto px-4 text-center">
-          <p>&copy; 2024 RestoAI. All rights reserved.</p>
-        </div>
-      </footer>
-
-      <Cart 
+      <CartSidebar
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
-        cart={cart}
-        setCart={setCart}
+        cartItems={cartItems}
+        onUpdateQuantity={updateCartQuantity}
+        onRemoveItem={removeFromCart}
+        onCheckout={handleCheckout}
       />
     </div>
-  )
+  );
 }
