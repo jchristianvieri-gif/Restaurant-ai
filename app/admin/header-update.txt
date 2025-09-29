@@ -1,0 +1,5 @@
+// Di bagian imports tambahkan:
+import { AdminHeader } from './header-component';
+
+// Ganti seluruh <header> section dengan:
+<AdminHeader />
