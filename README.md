@@ -1,354 +1,314 @@
-TECHNICAL DOCUMENTATION – RESTAURANT AI APPLICATION
+# 🍽️ GourmetAI - Restaurant Management System
 
-Jhon  Kristian Vieri – Junior Full Stack AI Developer Test
+<div align="center">
 
+![Next.js](https://img.shields.io/badge/Next.js-15.5-000000?style=for-the-badge&logo=next.js)
+![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
+![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4-412991?style=for-the-badge&logo=openai)
 
+**AI-Powered Restaurant Management dengan Full-Stack Modern**
 
-PROJECT INFORMATION
+</div>
 
+## 📋 Daftar Isi
 
+- [🚀 Untuk Developer (Install & Setup)](#-untuk-developer-install--setup)
+- [👨‍💼 Untuk User (Cara Penggunaan)](#-untuk-user-cara-penggunaan)
+- [🎯 Fitur Utama](#-fitur-utama)
+- [🏗️ Arsitektur Sistem](#️-arsitektur-sistem)
 
-Repository: https://github.com/jchristianvieri-gif/Restaurant-ai
+## 🚀 Untuk Developer (Install & Setup)
 
-Live Demo: 
-restaurant-ai-xi-dun.vercel.app
+### Prerequisites
+- Node.js 18+ 
+- npm atau yarn
+- Akun Supabase (gratis)
+- Akun OpenAI (opsional)
 
-Deployment Date: September 28, 2025
+### Step 1: Clone & Install
+```bash
+git clone https://github.com/your-username/restaurant-ai.git
+cd restaurant-ai
+npm install
+```
 
+Step 2: Environment Setup
 
+Buat file .env.local:
 
-ARCHITECTURE OVERVIEW
+```env
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.your-service-key
 
+# OpenAI (Opsional)
+OPENAI_API_KEY=sk-your-openai-api-key
 
+# Midtrans (Opsional)
+NEXT_PUBLIC_MIDTRANS_SERVER_KEY=SB-Mid-server-your-key
+NEXT_PUBLIC_MIDTRANS_CLIENT_KEY=SB-Mid-client-your-key
+```
 
-TECH STACK IMPLEMENTATION:
+Step 3: Database Setup
 
-• Frontend: Next.js 14 (Completed ✅)
+Jalankan di Supabase SQL Editor:
 
-• Database: Supabase PostgreSQL (Completed ✅)
+```sql
+CREATE TABLE IF NOT EXISTS products (
+  id BIGSERIAL PRIMARY KEY,
+  name TEXT NOT NULL,
+  description TEXT,
+  price INTEGER NOT NULL,
+  image_url TEXT,
+  category TEXT,
+  rating DECIMAL(2,1),
+  preparation TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
 
-• AI Framework: LangChain + Google Gemini Vision (Completed ✅)
+INSERT INTO storage.buckets (id, name, public) 
+VALUES ('product-images', 'product-images', true)
+ON CONFLICT (id) DO UPDATE SET public = true;
 
-• Payment Gateway: Midtrans Sandbox (Completed ✅)
+CREATE POLICY "Public Access" ON storage.objects FOR ALL USING (bucket_id = 'product-images');
+```
 
-• File Handling: Formidable (Completed ✅)
+Step 4: Run Development
 
+```bash
+npm run dev
+```
 
+Buka http://localhost:3000
 
-ARCHITECTURAL DECISIONS:
+Step 5: Build & Deploy
 
-• Custom API Routes over n8n: Chosen for faster MVP development and simpler Vercel deployment
+```bash
+npm run build
+npm run start
+```
 
-• LangChain Integration: Provides structured AI workflow with proper error handling
+👨‍💼 Untuk User (Cara Penggunaan)
 
-• Fallback Mechanism: Smart filename-based product detection when AI service is unavailable
+🛠️ Bagi Pemilik Restoran (Admin)
 
+1. Akses Panel Admin
 
+· Buka: https://your-app.vercel.app/admin
+· Tidak perlu login untuk demo
 
-WORKFLOW DESCRIPTIONS
+2. Tambah Menu dengan AI
+
+· Klik "Upload Food Photo"
+· Pilih foto makanan dari device
+· AI otomatis deteksi:
+  · Nama makanan
+  · Deskripsi
+  · Harga yang disarankan
+· Produk langsung muncul di menu
+
+3. Kelola Menu
+
+· Lihat semua produk di tab "Product Management"
+· Pantau statistik di dashboard
+· Hapus produk jika diperlukan
+
+🛒 Bagi Pelanggan
+
+1. Jelajahi Menu
+
+· Buka halaman utama
+· Filter berdasarkan kategori:
+  · 🍽️ All Menu
+  · 🍖 Main Course
+  · 🥤 Beverages
+  · 🍰 Desserts
+· Lihat rating & waktu persiapan
+
+2. Pesan Makanan
+
+· Klik "Add to Cart" pada item yang diinginkan
+· Atur jumlah di keranjang
+· Review pesanan sebelum checkout
+
+3. Checkout
 
+· Klik tombol "Cart" di header
+· Review item dan total harga
+· Klik "Place Order" untuk konfirmasi
 
+🎯 Fitur Utama
+
+🤖 AI-Powered Features
 
-1.	AI PRODUCT EXTRACTION WORKFLOW:
+· Auto Menu Recognition - Upload foto, AI ekstrak detail otomatis
+· Smart Pricing - Saran harga berdasarkan analisis pasar
+· Auto Description - Generate deskripsi menarik otomatis
 
+📱 Modern UX
+
+· Responsive Design - Optimal di desktop & mobile
+· Touch-Friendly - Button besar untuk mudah di-tap
+· Smooth Animations - Transisi halus dan profesional
+· Real-time Updates - Perubahan langsung terlihat
 
+🛠️ Management Tools
 
-Admin Uploads Image → Formidable Processes File → LangChain + Gemini AI Analysis → 
+· Admin Dashboard - Statistik dan analytics
+· Product Catalog - Kelola menu dengan mudah
+· Image Management - Upload dan storage otomatis
+· Order Management - Lihat dan kelola pesanan
 
-JSON Data Extraction → Save to Supabase → Display on Landing Page
+⚡ Technical Excellence
 
+· Dual-Mode System - Bekerja dengan/without API keys
+· Offline Capable - Fungsi dasar tetap bekerja
+· Fast Performance - Optimized loading dan rendering
+· Error Handling - User-friendly error messages
 
+🏗️ Arsitektur Sistem
 
-Steps:
+```
+Frontend (Next.js 15)
+├── Client Components
+│   ├── Product Display
+│   ├── Shopping Cart
+│   └── Admin Panel
+├── Server Components  
+│   ├ API Routes
+│   │   ├── AI Processing (/api/ai-process)
+│   │   ├── Image Upload (/api/upload)
+│   │   └── Payment (/api/midtrans-webhook)
+│   └── Server-side Rendering
+└── State Management
+    ├── React Hooks
+    ├── Local Storage
+    └── Real-time Updates
 
-- Admin uploads product image via /admin interface
+Backend Services
+├── Database (Supabase PostgreSQL)
+├── File Storage (Supabase Storage)
+├── AI Service (OpenAI GPT-4 Vision)
+├── Payment Gateway (Midtrans)
+└── Workflow Automation (n8n)
+```
 
-- Image processed using Formidable (no multer compatibility issues)
+Tech Stack Details
 
-- LangChain with Google Gemini Vision analyzes image content
+Layer Technology Purpose
+Frontend Next.js 15, React 18, Tailwind CSS SSR, Responsive UI, Modern Styling
+Backend Next.js API Routes, Node.js Server Logic, AI Processing
+Database Supabase PostgreSQL Product & Order Storage
+Storage Supabase Storage Image File Management
+AI/ML OpenAI GPT-4 Vision Product Recognition
+Payment Midtrans Payment Processing
+Styling Tailwind CSS Utility-first CSS Framework
+Deployment Vercel Cloud Hosting & CI/CD
 
-- AI extracts: Product Name, Description, and Price in IDR
+🔧 Advanced Configuration
 
-- Data validated and saved to Supabase database
+Dual-Mode System
 
-- New product automatically appears on landing page
+Aplikasi memiliki 2 mode operasi:
 
+🎭 Demo Mode (Default tanpa config):
 
+· AI simulation dengan data realistis
+· Local storage di browser
+· Cepat dan tidak perlu API keys
+· Perfect untuk testing
 
-2.	PAYMENT PROCESSING WORKFLOW:
+🚀 Production Mode (Dengan environment variables):
 
+· Real OpenAI GPT-4 Vision
+· Real Supabase database
+· Real payment processing
+· Real image upload
 
+Environment Variables Lengkap
 
-Customer Adds to Cart → Proceeds to Checkout → Midtrans Payment → 
+```env
+# Required: Supabase
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 
-Webhook Callback → Order Confirmation
+# Optional: AI Features
+OPENAI_API_KEY=sk-your-openai-key
 
+# Optional: Payment
+NEXT_PUBLIC_MIDTRANS_SERVER_KEY=your_midtrans_server_key
+NEXT_PUBLIC_MIDTRANS_CLIENT_KEY=your_midtrans_client_key
 
+# Optional: Automation
+N8N_WEBHOOK_URL=your_n8n_webhook_url
 
-Steps:
+# Optional: Auth
+NEXTAUTH_SECRET=your_nextauth_secret
+NEXTAUTH_URL=your_app_url
+```
 
-- Customer selects products and adds to cart
+�� Troubleshooting
 
-- Checkout form collects customer information
+Common Issues & Solutions
 
-- Midtrans Snap API generates payment interface
+1. Build Error
 
-- Payment processed through sandbox environment
+```bash
+# Clear cache dan install ulang
+rm -rf node_modules package-lock.json
+npm install
+npm run build
+```
 
-- Webhook endpoint updates order status in database
+2. Database Connection Error
 
-- Success page confirms order completion
+· Pastikan Supabase URL dan key benar
+· Cek tabel dan policies sudah dibuat
+· Verifikasi storage bucket exists
 
+3. AI Processing Error
 
+· Pastikan OpenAI API key valid
+· Cek quota GPT-4 Vision
+· Fallback ke demo mode otomatis
 
-3. ERROR HANDLING & FALLBACK SYSTEM:
+4. Image Upload Error
 
-- Primary: AI extraction with LangChain + Google Gemini
+· Verifikasi Supabase storage bucket
+· Cek file size (max 10MB)
+· Pastikan format didukung (JPG, PNG, WEBP)
 
-- Fallback: Smart filename-based product detection (e.g., “burger.jpg” → Burger product)
+📞 Support
 
-- Validation: Price range checking and field completeness
+Untuk bantuan teknis:
 
+1. Check documentation ini
+2. Buka issues di GitHub repository
+3. Contact developer langsung
 
+🚀 Deployment
 
-FEATURE IMPLEMENTATION STATUS
+Deploy ke Vercel
 
+1. Push code ke GitHub
+2. Import project di Vercel
+3. Configure environment variables
+4. Deploy otomatis
 
+Build Production
 
-PUBLIC FEATURES (CUSTOMER SIDE) ✅ COMPLETED:
+```bash
+npm run build
+npm run start
+```
 
-• Landing page with responsive product menu display
+---
 
-• Shopping cart with quantity management
+<div align="center">
 
-• Smooth checkout process with form validation
+🎉 Selamat! Aplikasi Anda siap digunakan.
 
-• Midtrans sandbox payment integration
+Dibuat dengan ❤️ untuk Technical Brief Junior Full Stack AI Developer
 
-• Order confirmation after successful payment
-
-• Mobile-responsive design
-
-
-
-ADMIN FEATURES (RESTAURANT OWNER) ✅ COMPLETED:
-
-• Secure product image upload interface
-
-• AI-powered product information extraction
-
-• Automatic database storage and management
-
-• Real-time product listing updates
-
-• Fallback mechanism for AI service failures
-
-
-
-TECHNICAL SPECIFICATIONS
-
-
-
-AI INTEGRATION DETAILS:
-
-- Framework: LangChain for structured AI workflows
-
-- Model: Google Gemini Pro Vision for image analysis
-
-- Output: Structured JSON {name, description, price}
-
-- Error Handling: Comprehensive try-catch with fallback
-
-
-
-PAYMENT INTEGRATION:
-
-- Gateway: Midtrans Snap API
-
-- Environment: Sandbox mode for testing
-
-- Webhook: /api/midtrans-webhook for status updates
-
-- Security: Payment signature verification
-
-
-
-DATABASE SCHEMA:
-
-Products Table:
-
-- id (UUID), name (text), description (text), price (integer)
-
-- image_url (text), created_at (timestamp)
-
-
-
-Orders Table:
-
-- id (UUID), customer_info (JSON), items (JSON), total (integer)
-
-- status (text), payment_id (text), created_at (timestamp)
-
-
-
-DEPLOYMENT INFORMATION
-
-
-
-PRODUCTION ENVIRONMENT:
-
-- Platform: Vercel (optimized for Next.js)
-
-- URL: https://restaurant-ai-xi-dun.vercel.app/
-
-- Build: Next.js 15.5.4
-
-- Status: ✅ Live and Fully Functional
-
-
-
-ENVIRONMENT VARIABLES CONFIGURED:
-
-- SUPABASE_URL: Project database URL
-
-- SUPABASE_ANON_KEY: Secure access key
-
-- GOOGLE_API_KEY: Google AI service key
-
-- MIDTRANS_SERVER_KEY: Payment server key
-
-- MIDTRANS_CLIENT_KEY: Payment client key
-
-
-
-TESTING RESULTS
-
-
-
-VERIFIED FUNCTIONALITIES ✅:
-
-• Product upload and AI extraction working correctly
-
-• Shopping cart management with persistent state
-
-• Complete payment processing flow
-
-• Order status updates via webhook
-
-• Admin and customer role separation
-
-• Mobile and desktop responsiveness
-
-
-
-PERFORMANCE METRICS 🎯:
-
-- Page Load Time: < 2 seconds
-
-- AI Processing Time: < 5 seconds
-
-- Payment Flow Completion: < 30 seconds
-
-- Error Recovery: Robust fallback system active
-
-
-
-PROJECT STRUCTURE
-
-
-
-Restaurant-ai/
-
-├── pages/
-
-│   ├── api/
-
-│   │   ├── admin/upload.js (AI product extraction)
-
-│   │   └── midtrans-webhook.js (payment callbacks)
-
-│   ├── index.js (landing page)
-
-│   ├── admin.js (admin panel)
-
-│   └── success.js (order confirmation)
-
-├── lib/
-
-│   ├── langchain-extract.js (AI service)
-
-│   └── ai-fallback.js (fallback mechanism)
-
-├── components/ (React components)
-
-└── public/ (static assets)
-
-
-
-FUTURE ENHANCEMENT OPPORTUNITIES
-
-
-
-SHORT-TERM IMPROVEMENTS:
-
-• n8n workflow integration for order management automation
-
-• Real-time notification system for new orders
-
-• Advanced product categorization and filtering
-
-• Enhanced admin dashboard with analytics
-
-
-
-LONG-TERM ROADMAP:
-
-• Multi-vendor restaurant support
-
-• Advanced AI model fine-tuning
-
-• Mobile application development
-
-• Real-time inventory management
-
-• Customer review and rating system
-
-
-
-CONCLUSION
-
-
-
-This project successfully demonstrates a complete full-stack AI application that meets all technical brief requirements:
-
-
-
-✅ MODERN TECH STACK: Next.js, Supabase, LangChain implementation
-
-✅ AI INTEGRATION: Robust product extraction with fallback mechanisms
-
-✅ PAYMENT SYSTEM: Complete Midtrans sandbox integration
-
-✅ USER EXPERIENCE: Smooth workflows for both customers and admins
-
-✅ PRODUCTION READY: Deployed and fully functional on Vercel
-
-
-
-The application showcases strong full-stack development skills with particular emphasis on AI integration and production deployment.
-
-
-
-
-
-Documentation Version: 1.0
-
-Last Updated: September 28, 2025
-
-Contact: GitHub repository for detailed code review and setup instructions
-
-
-
-
-
-
+</div>
