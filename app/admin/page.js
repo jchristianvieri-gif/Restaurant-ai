@@ -7,6 +7,7 @@ export default function AdminPanel() {
   const [preview, setPreview] = useState('');
   const [extractedData, setExtractedData] = useState(null);
   const [products, setProducts] = useState([]);
+  const [activeTab, setActiveTab] = useState('upload');
 
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
@@ -15,31 +16,37 @@ export default function AdminPanel() {
     setPreview(URL.createObjectURL(file));
     setLoading(true);
     
-    try {
-      // Simulate AI processing with realistic food detection
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      
+    // Simulate AI processing with realistic delay
+    setTimeout(() => {
       const foodTypes = [
-        { name: 'Gourmet Burger', description: 'Premium beef burger with special sauce', price: 12 },
-        { name: 'Artisan Pizza', description: 'Handcrafted pizza with fresh ingredients', price: 15 },
-        { name: 'Fresh Salad', description: 'Organic greens with house dressing', price: 9 },
-        { name: 'Pasta Deluxe', description: 'Italian pasta with authentic sauce', price: 14 },
-        { name: 'Dessert Special', description: 'Chef\'s special dessert creation', price: 8 }
+        { 
+          name: 'Gourmet Burger', 
+          description: 'Premium beef burger with special sauce and fresh vegetables', 
+          price: 18,
+          category: 'Main Course',
+          cookingTime: '12-15 min'
+        },
+        { 
+          name: 'Artisan Pizza', 
+          description: 'Handcrafted pizza with fresh ingredients and mozzarella', 
+          price: 22,
+          category: 'Main Course',
+          cookingTime: '15-20 min'
+        },
+        { 
+          name: 'Fresh Garden Salad', 
+          description: 'Organic greens with house dressing and croutons', 
+          price: 14,
+          category: 'Salads',
+          cookingTime: '5-8 min'
+        }
       ];
       
-      const randomFood = foodTypes[Math.floor(Math.random() * foodTypes.length)];
-      const mockData = {
-        name: randomFood.name,
-        description: randomFood.description,
-        price: randomFood.price
-      };
-      
+      const mockData = foodTypes[Math.floor(Math.random() * foodTypes.length)];
       setExtractedData(mockData);
-    } catch (error) {
-      alert('Error processing image: ' + error.message);
-    }
-    
-    setLoading(false);
+      setLoading(false);
+      setActiveTab('results');
+    }, 3000);
   };
 
   const confirmProduct = () => {
@@ -48,58 +55,101 @@ export default function AdminPanel() {
         id: Date.now(),
         ...extractedData,
         image: '🍽️',
-        createdAt: new Date().toLocaleDateString()
+        rating: 4.5 + Math.random() * 0.5,
+        createdAt: new Date().toLocaleDateString('en-US', { 
+          weekday: 'long', 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        })
       };
       
       setProducts(prev => [newProduct, ...prev]);
-      alert('✅ Product successfully added to menu!');
+      showToast('✅ Product successfully added to menu!', 'success');
       setPreview('');
       setExtractedData(null);
+      setActiveTab('products');
     }
   };
 
+  const showToast = (message, type = 'info') => {
+    const toast = document.createElement('div');
+    toast.className = `fixed top-4 right-4 ${type === 'success' ? 'bg-green-500' : 'bg-blue-500'} text-white px-6 py-3 rounded-xl shadow-2xl z-50 animate-fade-in-up flex items-center space-x-2`;
+    toast.innerHTML = `
+      <span>${message}</span>
+      <button onclick="this.parentElement.remove()" class="text-white hover:text-gray-200">✕</button>
+    `;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+      if (toast.parentElement) {
+        toast.remove();
+      }
+    }, 4000);
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* Navigation */}
-      <nav className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
+      <nav className="glass-nav sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex justify-between items-center">
             <Link href="/" className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
-                <span className="text-white font-bold text-sm">AI</span>
+              <div className="food-image">
+                <span className="text-white">🤖</span>
               </div>
-              <span className="text-xl font-bold text-gray-900">RestaurantAI Admin</span>
+              <div>
+                <h1 className="text-xl font-bold text-gray-900">GourmetAI Admin</h1>
+                <p className="text-xs text-blue-600 font-medium">AI-Powered Management</p>
+              </div>
             </Link>
-            <div className="flex items-center space-x-6">
-              <Link href="/" className="text-gray-600 hover:text-red-600 transition-colors">Home</Link>
-              <Link href="/admin" className="text-red-600 font-semibold border-b-2 border-red-600 pb-1">Admin</Link>
-              <Link href="/cart" className="text-gray-600 hover:text-red-600 transition-colors">Cart</Link>
+            <div className="flex space-x-6">
+              <Link href="/" className="text-gray-600 hover:text-blue-600 transition-colors font-medium">Home</Link>
+              <Link href="/admin" className="text-blue-600 font-bold border-b-2 border-blue-600 pb-1">Admin</Link>
+              <Link href="/cart" className="text-gray-600 hover:text-blue-600 transition-colors font-medium">Cart</Link>
             </div>
           </div>
         </div>
       </nav>
 
-      <div className="max-w-7xl mx-auto p-6">
+      <div className="max-w-6xl mx-auto p-6">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">AI-Powered Admin Panel</h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Upload product images and let our AI automatically extract name, description, and price.
-            Built with LangChain and Google Gemini AI technology.
-          </p>
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-black text-gray-900 mb-4">AI Restaurant Manager</h1>
+          <p className="text-xl text-gray-600">Smart product management with artificial intelligence</p>
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-          {/* Upload Section */}
-          <div className="xl:col-span-2 space-y-8">
-            {/* AI Upload Card */}
-            <div className="card p-6">
-              <h2 className="text-2xl font-semibold mb-6 flex items-center space-x-3">
-                <span>📸</span>
-                <span>AI Product Recognition</span>
-              </h2>
+        {/* Tabs */}
+        <div className="flex space-x-4 mb-8 bg-white rounded-2xl p-2 shadow-lg">
+          {[
+            { id: 'upload', label: '📸 AI Upload', icon: '📸' },
+            { id: 'results', label: '🔍 Results', icon: '🔍', disabled: !extractedData },
+            { id: 'products', label: `📦 Products (${products.length})`, icon: '📦' }
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              disabled={tab.disabled}
+              className={`flex-1 py-4 px-6 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${
+                activeTab === tab.id 
+                  ? 'bg-blue-500 text-white shadow-lg' 
+                  : 'text-gray-600 hover:bg-gray-100'
+              } ${tab.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              <span>{tab.icon}</span>
+              <span>{tab.label}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Tab Content */}
+        <div className="restaurant-card p-8">
+          {activeTab === 'upload' && (
+            <div className="text-center">
+              <h2 className="text-2xl font-bold mb-6">AI Product Recognition</h2>
+              <p className="text-gray-600 mb-8">Upload a food image and our AI will automatically extract product details</p>
               
-              <div className="border-2 border-dashed border-blue-300 rounded-xl p-8 text-center bg-blue-50 mb-6">
+              <div className="border-3 border-dashed border-blue-300 rounded-2xl p-12 bg-blue-50 mb-8">
                 <input 
                   type="file" 
                   accept="image/*" 
@@ -110,134 +160,152 @@ export default function AdminPanel() {
                 />
                 <label 
                   htmlFor="upload" 
-                  className="cursor-pointer bg-blue-500 text-white px-8 py-4 rounded-lg font-semibold hover:bg-blue-600 transition-all duration-200 inline-flex items-center space-x-2"
+                  className="cursor-pointer restaurant-button inline-flex items-center space-x-3 text-lg px-8 py-4"
                 >
                   {loading ? (
                     <>
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                      <span>AI Processing...</span>
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                      <span>AI Processing Image...</span>
                     </>
                   ) : (
                     <>
-                      <span>📷</span>
-                      <span>Upload Product Image</span>
+                      <span className="text-2xl">📷</span>
+                      <span>Upload Food Image</span>
                     </>
                   )}
                 </label>
-                <p className="text-sm text-gray-500 mt-3">Supports JPG, PNG, WebP • AI will analyze automatically</p>
+                <p className="text-sm text-gray-500 mt-4">Supports JPG, PNG, WebP • AI will analyze automatically</p>
               </div>
 
               {preview && (
                 <div className="text-center">
-                  <img src={preview} alt="Preview" className="max-w-full h-64 object-cover rounded-lg mx-auto shadow-lg" />
+                  <img src={preview} alt="Preview" className="max-w-md h-64 object-cover rounded-2xl mx-auto shadow-lg" />
                   <p className="text-sm text-gray-500 mt-3">AI is analyzing this food image...</p>
                 </div>
               )}
             </div>
+          )}
 
-            {/* Extracted Results */}
-            {extractedData && (
-              <div className="card p-6 bg-green-50 border-green-200">
-                <h3 className="text-xl font-semibold mb-4 text-green-800 flex items-center space-x-2">
-                  <span>✅</span>
-                  <span>AI Extraction Complete</span>
-                </h3>
-                
+          {activeTab === 'results' && extractedData && (
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold text-green-700 flex items-center space-x-2">
+                <span>✅</span>
+                <span>AI Analysis Complete</span>
+              </h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Product Name</label>
+                    <label className="block font-semibold text-gray-700 mb-2">Product Name</label>
                     <input 
                       type="text" 
                       value={extractedData.name}
                       onChange={(e) => setExtractedData({...extractedData, name: e.target.value})}
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                      placeholder="Enter product name"
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                    <label className="block font-semibold text-gray-700 mb-2">Description</label>
                     <textarea 
                       value={extractedData.description}
                       onChange={(e) => setExtractedData({...extractedData, description: e.target.value})}
-                      rows="3"
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      rows="4"
+                      className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                      placeholder="Enter product description"
+                    />
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="block font-semibold text-gray-700 mb-2">Price ($)</label>
+                    <input 
+                      type="number" 
+                      value={extractedData.price}
+                      onChange={(e) => setExtractedData({...extractedData, price: e.target.value})}
+                      className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                      placeholder="Enter price"
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Price ($)</label>
-                    <input 
-                      type="number" 
-                      value={extractedData.price}
-                      onChange={(e) => setExtractedData({...extractedData, price: parseInt(e.target.value) || 0})}
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
+                    <label className="block font-semibold text-gray-700 mb-2">Category</label>
+                    <select 
+                      value={extractedData.category}
+                      onChange={(e) => setExtractedData({...extractedData, category: e.target.value})}
+                      className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                    >
+                      <option value="Main Course">Main Course</option>
+                      <option value="Appetizers">Appetizers</option>
+                      <option value="Salads">Salads</option>
+                      <option value="Desserts">Desserts</option>
+                      <option value="Beverages">Beverages</option>
+                    </select>
                   </div>
                   
-                  <button 
-                    onClick={confirmProduct}
-                    className="w-full bg-green-500 text-white py-3 rounded-lg font-semibold hover:bg-green-600 transition-all duration-200 flex items-center justify-center space-x-2"
-                  >
-                    <span>💾</span>
-                    <span>Save Product to Menu</span>
-                  </button>
+                  <div>
+                    <label className="block font-semibold text-gray-700 mb-2">Cooking Time</label>
+                    <input 
+                      type="text" 
+                      value={extractedData.cookingTime}
+                      onChange={(e) => setExtractedData({...extractedData, cookingTime: e.target.value})}
+                      className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                      placeholder="e.g., 15-20 min"
+                    />
+                  </div>
                 </div>
               </div>
-            )}
-          </div>
-
-          {/* Products List */}
-          <div className="space-y-6">
-            <div className="card p-6">
-              <h3 className="text-xl font-semibold mb-4 flex items-center space-x-2">
-                <span>📦</span>
-                <span>Managed Products ({products.length})</span>
-              </h3>
               
+              <button 
+                onClick={confirmProduct}
+                className="w-full restaurant-button bg-green-500 hover:bg-green-600 text-lg py-4 flex items-center justify-center space-x-2"
+              >
+                <span>💾</span>
+                <span>Save to Menu</span>
+              </button>
+            </div>
+          )}
+
+          {activeTab === 'products' && (
+            <div>
+              <h2 className="text-2xl font-bold mb-6">Managed Products</h2>
               {products.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  <div className="text-4xl mb-3">📸</div>
-                  <p>No products yet</p>
-                  <p className="text-sm">Upload an image to get started</p>
+                <div className="text-center py-12 text-gray-500">
+                  <div className="text-6xl mb-4">📸</div>
+                  <p className="text-lg mb-2">No products yet</p>
+                  <p>Upload an image to get started with AI product recognition</p>
                 </div>
               ) : (
-                <div className="space-y-4 max-h-96 overflow-y-auto">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {products.map(product => (
-                    <div key={product.id} className="border border-gray-200 rounded-lg p-4 bg-white">
-                      <div className="flex items-center space-x-3 mb-2">
-                        <span className="text-2xl">{product.image}</span>
+                    <div key={product.id} className="restaurant-card p-6 hover-lift">
+                      <div className="flex items-start space-x-4">
+                        <div className="food-image">
+                          {product.image}
+                        </div>
                         <div className="flex-1">
-                          <h4 className="font-semibold text-gray-900">{product.name}</h4>
-                          <p className="text-sm text-gray-600">${product.price}</p>
+                          <div className="flex justify-between items-start mb-2">
+                            <h3 className="font-bold text-lg text-gray-900">{product.name}</h3>
+                            <span className="text-xl font-black text-orange-600">${product.price}</span>
+                          </div>
+                          <p className="text-gray-600 text-sm mb-3">{product.description}</p>
+                          <div className="flex justify-between items-center">
+                            <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-xs font-medium">
+                              {product.category}
+                            </span>
+                            <span className="text-gray-500 text-sm">{product.cookingTime}</span>
+                          </div>
+                          <p className="text-gray-400 text-xs mt-3">Added: {product.createdAt}</p>
                         </div>
                       </div>
-                      <p className="text-xs text-gray-500">{product.description}</p>
-                      <p className="text-xs text-gray-400 mt-2">Added: {product.createdAt}</p>
                     </div>
                   ))}
                 </div>
               )}
             </div>
-
-            {/* Stats Card */}
-            <div className="card p-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white">
-              <h3 className="text-lg font-semibold mb-4">AI Processing Stats</h3>
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span>Products Processed</span>
-                  <span className="font-bold">{products.length}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>AI Accuracy</span>
-                  <span className="font-bold">94%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Time Saved</span>
-                  <span className="font-bold">~5min/item</span>
-                </div>
-              </div>
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
