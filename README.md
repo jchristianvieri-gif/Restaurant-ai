@@ -10,9 +10,8 @@ PROJECT INFORMATION
 
 Repository: https://github.com/jchristianvieri-gif/Restaurant-ai
 
-Live Demo: https://restaurant-ai-xi-dun.vercel.app/
-
-Admin Panel: https://restaurant-ai-xi-dun.vercel.app/admin
+Live Demo: 
+https://restaurant-ai-xi-dun-azure.vercel.app/
 
 Deployment Date: September 28, 2025
 
