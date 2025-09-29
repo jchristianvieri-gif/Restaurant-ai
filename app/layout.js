@@ -1,14 +1,17 @@
+import { Inter } from 'next/font/google'
 import './globals.css'
 
+const inter = Inter({ subsets: ['latin'] })
+
 export const metadata = {
-  title: 'Restaurant AI - Next Generation Dining',
-  description: 'AI-powered restaurant management',
+  title: 'Restaurant AI - Modern Dining Experience',
+  description: 'AI-powered restaurant with automated menu management',
 }
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className={inter.className}>{children}</body>
     </html>
   )
 }

@@ -1,0 +1,105 @@
+{
+  "name": "Restaurant Product Processing",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "/webhook/product-upload"
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Process image with AI\nconst { OpenAI } = require('openai');\nconst openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });\n\nasync function extractProductInfo(imageUrl) {\n  const response = await openai.chat.completions.create({\n    model: \"gpt-4-vision-preview\",\n    messages: [{\n      role: \"user\",\n      content: [\n        { type: \"text\", text: \"Extract product info as JSON: name, description, price\" },\n        { type: \"image_url\", image_url: { url: imageUrl } }\n      ]\n    }],\n    max_tokens: 300\n  });\n  \n  return JSON.parse(response.choices[0].message.content);\n}\n\nconst productInfo = await extractProductInfo($input.first().json.imageUrl);\nreturn [{ json: productInfo }];"
+      },
+      "name": "AI Processing",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "1",
+              "leftValue": "={{ $json.name }}",
+              "rightValue": "undefined",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "name": "Data Validation",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/products",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $env.SUPABASE_SERVICE_ROLE_KEY }}"
+            },
+            {
+              "name": "apikey",
+              "value": "={{ $env.SUPABASE_ANON_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "={{ $json.name }}"
+            },
+            {
+              "name": "description", 
+              "value": "={{ $json.description }}"
+            },
+            {
+              "name": "price",
+              "value": "={{ $json.price }}"
+            },
+            {
+              "name": "image_url",
+              "value": "={{ $node[\"Webhook\"].json[\"imageUrl\"] }}"
+            }
+          ]
+        }
+      },
+      "name": "Save to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 300]
+    }
+  ]
+}

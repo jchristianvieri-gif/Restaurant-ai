@@ -1,9 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  images: {
-    domains: ['localhost', 'restaurant-ai-xi-dun.vercel.app'],
-  },
-  serverExternalPackages: ['sharp', 'canvas']
+  // No need for appDir in Next.js 15, it's stable now
 }
 
 module.exports = nextConfig
