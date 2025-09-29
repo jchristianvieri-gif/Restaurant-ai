@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
+import { useDemoMode } from '../lib/config';
 
 export default function Home() {
   const [products, setProducts] = useState([]);
@@ -9,20 +10,20 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('all');
 
-  // Sample categories with beautiful food images
+  // Sample categories dengan gambar makanan yang indah
   const categories = [
-    { id: 'all', name: 'All Menu', emoji: '🍽️', image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=500' },
-    { id: 'main', name: 'Main Course', emoji: '🍖', image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=500' },
-    { id: 'drink', name: 'Beverages', emoji: '🥤', image: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=500' },
-    { id: 'dessert', name: 'Desserts', emoji: '🍰', image: 'https://images.unsplash.com/photo-1551024506-0bccd828d307?w=500' }
+    { id: 'all', name: 'Semua Menu', emoji: '🍽️' },
+    { id: 'main', name: 'Makanan Utama', emoji: '🍖' },
+    { id: 'drink', name: 'Minuman', emoji: '🥤' },
+    { id: 'dessert', name: 'Dessert', emoji: '🍰' }
   ];
 
-  // Enhanced sample products with realistic food images
+  // Enhanced sample products dengan gambar makanan realistis
   const sampleProducts = [
     {
       id: 1,
       name: "Wagyu Beef Burger",
-      description: "Premium wagyu beef with truffle aioli and aged cheddar",
+      description: "Premium wagyu beef dengan truffle aioli dan aged cheddar",
       price: 125000,
       image_url: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&h=300&fit=crop",
       category: 'main',
@@ -32,7 +33,7 @@ export default function Home() {
     {
       id: 2, 
       name: "Truffle Pasta",
-      description: "Fresh pasta with black truffle and parmesan cream sauce",
+      description: "Fresh pasta dengan black truffle dan parmesan cream sauce",
       price: 98000,
       image_url: "https://images.unsplash.com/photo-1621996346565-e3dbc353d2e5?w=500&h=300&fit=crop",
       category: 'main',
@@ -42,7 +43,7 @@ export default function Home() {
     {
       id: 3,
       name: "Rainbow Smoothie Bowl",
-      description: "Acai base topped with fresh fruits and granola", 
+      description: "Acai base dengan fresh fruits dan granola", 
       price: 45000,
       image_url: "https://images.unsplash.com/photo-1511690743698-d9d85f2fbf38?w=500&h=300&fit=crop",
       category: 'dessert',
@@ -52,7 +53,7 @@ export default function Home() {
     {
       id: 4,
       name: "Artisan Coffee",
-      description: "Single-origin coffee with latte art",
+      description: "Single-origin coffee dengan latte art",
       price: 35000,
       image_url: "https://images.unsplash.com/photo-1542181961-9590d0c79dab?w=500&h=300&fit=crop",
       category: 'drink',
@@ -63,7 +64,17 @@ export default function Home() {
 
   useEffect(() => {
     fetchProducts();
+    // Load cart from localStorage
+    const savedCart = localStorage.getItem('restaurant-cart');
+    if (savedCart) {
+      setCart(JSON.parse(savedCart));
+    }
   }, []);
+
+  // Save cart to localStorage whenever cart changes
+  useEffect(() => {
+    localStorage.setItem('restaurant-cart', JSON.stringify(cart));
+  }, [cart]);
 
   const fetchProducts = async () => {
     setIsLoading(true);
@@ -79,6 +90,7 @@ export default function Home() {
         setProducts(sampleProducts);
       }
     } catch (error) {
+      console.error('Error fetching products:', error);
       setProducts(sampleProducts);
     } finally {
       setIsLoading(false);
@@ -101,7 +113,7 @@ export default function Home() {
     });
     
     // Show success notification
-    showNotification(`✅ ${product.name} added to cart!`, 'success');
+    showNotification(`✅ ${product.name} ditambahkan ke keranjang!`, 'success');
   };
 
   const removeFromCart = (productId) => {
@@ -132,13 +144,32 @@ export default function Home() {
     const notification = document.createElement('div');
     notification.className = `fixed top-6 right-6 ${
       type === 'success' ? 'bg-green-500' : 'bg-red-500'
-    } text-white px-6 py-4 rounded-xl shadow-2xl z-50 fade-in font-semibold`;
+    } text-white px-6 py-4 rounded-xl shadow-2xl z-50 animate-fade-in font-semibold max-w-sm`;
     notification.textContent = message;
     document.body.appendChild(notification);
     
     setTimeout(() => {
       notification.remove();
     }, 3000);
+  };
+
+  const handleCheckout = () => {
+    if (cart.length === 0) {
+      showNotification('❌ Keranjang kosong!', 'error');
+      return;
+    }
+
+    // Simulate order processing
+    showNotification('🚀 Pesanan berhasil! Makanan Anda sedang dipersiapkan.', 'success');
+    setCart([]);
+    setShowCart(false);
+    
+    // You can integrate with payment gateway here
+    console.log('Order placed:', {
+      items: cart,
+      total: getTotalPrice() + 10000,
+      timestamp: new Date().toISOString()
+    });
   };
 
   return (
@@ -154,6 +185,19 @@ export default function Home() {
               <div>
                 <h1 className="text-white font-bold text-2xl">GourmetAI</h1>
                 <p className="text-blue-100 text-sm">Restaurant & Café</p>
+                <div className="flex items-center space-x-2 mt-1">
+                  {useDemoMode ? (
+                    <>
+                      <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
+                      <span className="text-xs text-yellow-200">Demo Mode</span>
+                    </>
+                  ) : (
+                    <>
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                      <span className="text-xs text-green-200">Live Mode</span>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
             
@@ -168,9 +212,9 @@ export default function Home() {
                 onClick={() => setShowCart(true)}
                 className="relative bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 backdrop-blur-sm border border-white/20 hover:scale-105"
               >
-                🛒 Cart 
+                🛒 Keranjang 
                 {getTotalItems() > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold bounce-in">
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold animate-bounce-in">
                     {getTotalItems()}
                   </span>
                 )}
@@ -183,21 +227,25 @@ export default function Home() {
       {/* Hero Section */}
       <section className="py-16 px-4">
         <div className="container-max text-center">
-          <h1 className="text-white font-bold mb-6 text-balance fade-in">
-            Taste the Future of 
+          <h1 className="text-white font-bold mb-6 text-balance animate-fade-in">
+            Rasakan Masa Depan 
             <span className="block bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent mt-2">
-              Dining Experience
+              Pengalaman Kuliner
             </span>
           </h1>
           <p className="text-blue-100 text-lg mb-8 max-w-2xl mx-auto text-balance">
-            AI-powered culinary excellence meets traditional flavors. Discover menu items crafted with precision and passion.
+            Keunggulan kuliner bertenaga AI bertemu dengan cita rasa tradisional. 
+            Temukan menu yang dibuat dengan presisi dan passion.
           </p>
           <div className="flex gap-4 justify-center flex-wrap">
-            <button className="btn-primary">
-              🍴 Explore Menu
+            <button 
+              onClick={() => document.getElementById('menu-section').scrollIntoView({ behavior: 'smooth' })}
+              className="btn-primary"
+            >
+              🍴 Jelajahi Menu
             </button>
             <button className="bg-white/20 hover:bg-white/30 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 backdrop-blur-sm border border-white/20 hover:scale-105">
-              📞 Reserve Table
+              📞 Reservasi Meja
             </button>
           </div>
         </div>
@@ -206,7 +254,7 @@ export default function Home() {
       {/* Categories Section */}
       <section className="py-8 px-4">
         <div className="container-max">
-          <h2 className="text-white text-center mb-8 font-bold">Menu Categories</h2>
+          <h2 className="text-white text-center mb-8 font-bold">Kategori Menu</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
             {categories.map((category) => (
               <button
@@ -227,27 +275,30 @@ export default function Home() {
       </section>
 
       {/* Products Section */}
-      <section className="py-12 px-4">
+      <section id="menu-section" className="py-12 px-4">
         <div className="container-max">
           <div className="text-center mb-12">
-            <h2 className="text-white font-bold mb-4">Our Specialties</h2>
-            <p className="text-blue-100 text-lg">Carefully crafted dishes using the finest ingredients</p>
+            <h2 className="text-white font-bold mb-4">Spesialisasi Kami</h2>
+            <p className="text-blue-100 text-lg">Hidangan yang dibuat dengan teliti menggunakan bahan-bahan terbaik</p>
           </div>
 
           {isLoading ? (
             <div className="flex justify-center items-center py-12">
               <div className="loading-spinner"></div>
-              <span className="ml-3 text-white">Loading delicious menu...</span>
+              <span className="ml-3 text-white">Memuat menu lezat...</span>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-8">
               {filteredProducts.map((product) => (
-                <div key={product.id} className="card-hover bg-white rounded-2xl overflow-hidden shadow-2xl fade-in">
+                <div key={product.id} className="card-hover bg-white rounded-2xl overflow-hidden shadow-2xl animate-fade-in">
                   <div className="relative">
                     <img
                       src={product.image_url}
                       alt={product.name}
                       className="w-full h-48 object-cover"
+                      onError={(e) => {
+                        e.target.src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&h=300&fit=crop';
+                      }}
                     />
                     <div className="absolute top-4 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-semibold">
                       ⭐ {product.rating}
@@ -260,7 +311,9 @@ export default function Home() {
                   <div className="p-6">
                     <div className="flex justify-between items-start mb-3">
                       <h3 className="font-bold text-gray-800 text-balance">{product.name}</h3>
-                      <span className="text-2xl font-bold text-green-600 whitespace-nowrap ml-4">Rp {product.price?.toLocaleString()}</span>
+                      <span className="text-2xl font-bold text-green-600 whitespace-nowrap ml-4">
+                        Rp {product.price?.toLocaleString()}
+                      </span>
                     </div>
                     
                     <p className="text-gray-600 mb-4 leading-relaxed text-balance">{product.description}</p>
@@ -275,7 +328,7 @@ export default function Home() {
                         onClick={() => addToCart(product)}
                         className="btn-primary text-sm py-2 px-6"
                       >
-                        Add to Cart
+                        Tambah ke Keranjang
                       </button>
                     </div>
                   </div>
@@ -283,17 +336,25 @@ export default function Home() {
               ))}
             </div>
           )}
+
+          {filteredProducts.length === 0 && !isLoading && (
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">🍽️</div>
+              <h3 className="text-xl font-semibold text-white mb-2">Tidak ada produk dalam kategori ini</h3>
+              <p className="text-blue-100">Coba kategori lain atau kembali ke semua menu</p>
+            </div>
+          )}
         </div>
       </section>
 
       {/* Enhanced Cart Sidebar */}
       {showCart && (
-        <div className="fixed inset-0 z-50 fade-in">
+        <div className="fixed inset-0 z-50 animate-fade-in">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowCart(false)}></div>
-          <div className="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl overflow-y-auto slide-in-right">
+          <div className="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl overflow-y-auto animate-slide-in-right">
             <div className="p-6 border-b bg-gradient-to-r from-blue-500 to-purple-600 text-white">
               <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold">Your Order</h2>
+                <h2 className="text-2xl font-bold">Pesanan Anda</h2>
                 <button
                   onClick={() => setShowCart(false)}
                   className="text-white hover:text-gray-200 text-2xl transition-transform hover:scale-110"
@@ -301,20 +362,20 @@ export default function Home() {
                   ✕
                 </button>
               </div>
-              <p className="text-blue-100 mt-2">Review your delicious selections</p>
+              <p className="text-blue-100 mt-2">Review pilihan lezat Anda</p>
             </div>
             
             <div className="p-6">
               {cart.length === 0 ? (
                 <div className="text-center py-12">
                   <div className="text-6xl mb-4">🛒</div>
-                  <h3 className="text-xl font-semibold text-gray-600 mb-2">Your cart is empty</h3>
-                  <p className="text-gray-500 mb-6">Add some delicious items to get started!</p>
+                  <h3 className="text-xl font-semibold text-gray-600 mb-2">Keranjang Anda kosong</h3>
+                  <p className="text-gray-500 mb-6">Tambahkan beberapa item lezat untuk memulai!</p>
                   <button
                     onClick={() => setShowCart(false)}
                     className="btn-primary"
                   >
-                    Browse Menu
+                    Jelajahi Menu
                   </button>
                 </div>
               ) : (
@@ -327,6 +388,9 @@ export default function Home() {
                             src={item.image_url}
                             alt={item.name}
                             className="w-16 h-16 rounded-lg object-cover"
+                            onError={(e) => {
+                              e.target.src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=64&h=64&fit=crop';
+                            }}
                           />
                           <div className="flex-1 min-w-0">
                             <h3 className="font-semibold text-gray-800 text-balance">{item.name}</h3>
@@ -365,7 +429,7 @@ export default function Home() {
                         <span className="font-semibold">Rp {getTotalPrice().toLocaleString()}</span>
                       </div>
                       <div className="flex justify-between text-lg">
-                        <span className="text-gray-600">Service Fee</span>
+                        <span className="text-gray-600">Biaya Layanan</span>
                         <span className="font-semibold">Rp 10,000</span>
                       </div>
                       <div className="flex justify-between text-2xl font-bold border-t pt-3">
@@ -375,18 +439,14 @@ export default function Home() {
                     </div>
                     
                     <button
-                      onClick={() => {
-                        showNotification('🚀 Order placed successfully! Your food is being prepared.', 'success');
-                        setCart([]);
-                        setShowCart(false);
-                      }}
+                      onClick={handleCheckout}
                       className="btn-secondary w-full py-4 text-lg"
                     >
-                      🎯 Place Order
+                      🎯 Pesan Sekarang
                     </button>
                     
                     <p className="text-center text-gray-500 text-sm mt-4">
-                      Secure payment • Free delivery over Rp 100,000
+                      Pembayaran aman • Gratis ongkir di atas Rp 100,000
                     </p>
                   </div>
                 </>
