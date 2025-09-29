@@ -58,26 +58,6 @@ export default function Home() {
       category: 'drink',
       rating: 4.6,
       preparation: '3-5 min'
-    },
-    {
-      id: 5,
-      name: "Sushi Platter",
-      description: "Assorted fresh sushi with wasabi and ginger",
-      price: 155000,
-      image_url: "https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=500&h=300&fit=crop",
-      category: 'main',
-      rating: 4.9,
-      preparation: '25-30 min'
-    },
-    {
-      id: 6,
-      name: "Chocolate Lava Cake",
-      description: "Warm chocolate cake with melting center and vanilla ice cream",
-      price: 55000,
-      image_url: "https://images.unsplash.com/photo-1624353365286-3f8d62daad51?w=500&h=300&fit=crop",
-      category: 'dessert',
-      rating: 4.8,
-      preparation: '10-15 min'
     }
   ];
 
@@ -121,14 +101,7 @@ export default function Home() {
     });
     
     // Show success notification
-    const notification = document.createElement('div');
-    notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-xl shadow-lg z-50 bounce-in';
-    notification.textContent = `✅ ${product.name} added to cart!`;
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-      notification.remove();
-    }, 3000);
+    showNotification(`✅ ${product.name} added to cart!`, 'success');
   };
 
   const removeFromCart = (productId) => {
@@ -155,56 +128,71 @@ export default function Home() {
     return cart.reduce((total, item) => total + (item.price * item.quantity), 0);
   };
 
+  const showNotification = (message, type = 'success') => {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-6 right-6 ${
+      type === 'success' ? 'bg-green-500' : 'bg-red-500'
+    } text-white px-6 py-4 rounded-xl shadow-2xl z-50 fade-in font-semibold`;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+      notification.remove();
+    }, 3000);
+  };
+
   return (
     <div className="min-h-screen gradient-bg">
       {/* Enhanced Header */}
-      <header className="glass-effect sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center space-x-3">
-            <div className="bg-white p-2 rounded-xl shadow-lg">
-              <span className="text-2xl">🍽️</span>
+      <header className="glass-effect sticky top-0 z-40 border-b border-white/20">
+        <div className="container-max py-4">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center space-x-4">
+              <div className="bg-white/20 p-3 rounded-2xl backdrop-blur-sm">
+                <span className="text-2xl">🍽️</span>
+              </div>
+              <div>
+                <h1 className="text-white font-bold text-2xl">GourmetAI</h1>
+                <p className="text-blue-100 text-sm">Restaurant & Café</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-white">GourmetAI</h1>
-              <p className="text-blue-100 text-sm">Restaurant & Café</p>
+            
+            <div className="flex gap-3">
+              <a 
+                href="/admin" 
+                className="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 backdrop-blur-sm border border-white/20 hover:scale-105"
+              >
+                🛠️ Admin
+              </a>
+              <button
+                onClick={() => setShowCart(true)}
+                className="relative bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 backdrop-blur-sm border border-white/20 hover:scale-105"
+              >
+                🛒 Cart 
+                {getTotalItems() > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold bounce-in">
+                    {getTotalItems()}
+                  </span>
+                )}
+              </button>
             </div>
-          </div>
-          
-          <div className="flex gap-3">
-            <a 
-              href="/admin" 
-              className="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 backdrop-blur-sm border border-white/20 hover:scale-105"
-            >
-              🛠️ Admin
-            </a>
-            <button
-              onClick={() => setShowCart(true)}
-              className="relative bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 backdrop-blur-sm border border-white/20 hover:scale-105 group"
-            >
-              🛒 Cart 
-              {getTotalItems() > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold bounce-in">
-                  {getTotalItems()}
-                </span>
-              )}
-            </button>
           </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="relative py-16 px-4 text-center">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 fade-in">
+      <section className="py-16 px-4">
+        <div className="container-max text-center">
+          <h1 className="text-white font-bold mb-6 text-balance fade-in">
             Taste the Future of 
-            <span className="block bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent">
+            <span className="block bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent mt-2">
               Dining Experience
             </span>
           </h1>
-          <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
+          <p className="text-blue-100 text-lg mb-8 max-w-2xl mx-auto text-balance">
             AI-powered culinary excellence meets traditional flavors. Discover menu items crafted with precision and passion.
           </p>
-          <div className="flex gap-4 justify-center">
+          <div className="flex gap-4 justify-center flex-wrap">
             <button className="btn-primary">
               🍴 Explore Menu
             </button>
@@ -217,8 +205,8 @@ export default function Home() {
 
       {/* Categories Section */}
       <section className="py-8 px-4">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl font-bold text-white text-center mb-8">Categories</h2>
+        <div className="container-max">
+          <h2 className="text-white text-center mb-8 font-bold">Menu Categories</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
             {categories.map((category) => (
               <button
@@ -231,7 +219,7 @@ export default function Home() {
                 <div className="text-4xl mb-3 group-hover:scale-110 transition-transform duration-300">
                   {category.emoji}
                 </div>
-                <h3 className="font-semibold text-white">{category.name}</h3>
+                <h3 className="font-semibold text-white text-sm">{category.name}</h3>
               </button>
             ))}
           </div>
@@ -240,9 +228,9 @@ export default function Home() {
 
       {/* Products Section */}
       <section className="py-12 px-4">
-        <div className="max-w-7xl mx-auto">
+        <div className="container-max">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-white mb-4">Our Specialties</h2>
+            <h2 className="text-white font-bold mb-4">Our Specialties</h2>
             <p className="text-blue-100 text-lg">Carefully crafted dishes using the finest ingredients</p>
           </div>
 
@@ -252,7 +240,7 @@ export default function Home() {
               <span className="ml-3 text-white">Loading delicious menu...</span>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-8">
               {filteredProducts.map((product) => (
                 <div key={product.id} className="card-hover bg-white rounded-2xl overflow-hidden shadow-2xl fade-in">
                   <div className="relative">
@@ -271,11 +259,11 @@ export default function Home() {
                   
                   <div className="p-6">
                     <div className="flex justify-between items-start mb-3">
-                      <h3 className="font-bold text-xl text-gray-800">{product.name}</h3>
-                      <span className="text-2xl font-bold text-green-600">Rp {product.price?.toLocaleString()}</span>
+                      <h3 className="font-bold text-gray-800 text-balance">{product.name}</h3>
+                      <span className="text-2xl font-bold text-green-600 whitespace-nowrap ml-4">Rp {product.price?.toLocaleString()}</span>
                     </div>
                     
-                    <p className="text-gray-600 mb-4 leading-relaxed">{product.description}</p>
+                    <p className="text-gray-600 mb-4 leading-relaxed text-balance">{product.description}</p>
                     
                     <div className="flex justify-between items-center">
                       <div className="flex items-center space-x-2 text-sm text-gray-500">
@@ -302,7 +290,7 @@ export default function Home() {
       {showCart && (
         <div className="fixed inset-0 z-50 fade-in">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowCart(false)}></div>
-          <div className="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl overflow-y-auto">
+          <div className="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl overflow-y-auto slide-in-right">
             <div className="p-6 border-b bg-gradient-to-r from-blue-500 to-purple-600 text-white">
               <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold">Your Order</h2>
@@ -340,8 +328,8 @@ export default function Home() {
                             alt={item.name}
                             className="w-16 h-16 rounded-lg object-cover"
                           />
-                          <div className="flex-1">
-                            <h3 className="font-semibold text-gray-800">{item.name}</h3>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-gray-800 text-balance">{item.name}</h3>
                             <p className="text-green-600 font-bold">Rp {item.price?.toLocaleString()}</p>
                           </div>
                           <div className="flex items-center space-x-2">
@@ -388,13 +376,13 @@ export default function Home() {
                     
                     <button
                       onClick={() => {
-                        alert('🚀 Checkout completed! Your order is being prepared with AI-powered precision!');
+                        showNotification('🚀 Order placed successfully! Your food is being prepared.', 'success');
                         setCart([]);
                         setShowCart(false);
                       }}
                       className="btn-secondary w-full py-4 text-lg"
                     >
-                      🎯 Proceed to Checkout
+                      🎯 Place Order
                     </button>
                     
                     <p className="text-center text-gray-500 text-sm mt-4">
@@ -410,14 +398,14 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="bg-white/10 backdrop-blur-sm border-t border-white/20 mt-20 py-8 px-4">
-        <div className="max-w-7xl mx-auto text-center">
-          <div className="flex justify-center space-x-6 mb-4">
-            <span className="text-white">📱 Mobile App</span>
-            <span className="text-white">🏆 Awards</span>
-            <span className="text-white">👨‍🍳 Careers</span>
-            <span className="text-white">📞 Contact</span>
+        <div className="container-max text-center">
+          <div className="flex justify-center gap-6 mb-4 flex-wrap">
+            <span className="text-white text-sm">📱 Mobile App</span>
+            <span className="text-white text-sm">🏆 Awards</span>
+            <span className="text-white text-sm">👨‍🍳 Careers</span>
+            <span className="text-white text-sm">📞 Contact</span>
           </div>
-          <p className="text-blue-100">
+          <p className="text-blue-100 text-sm">
             © 2024 GourmetAI Restaurant. Powered by AI, Crafted with ❤️
           </p>
         </div>
